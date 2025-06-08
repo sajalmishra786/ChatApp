@@ -3,7 +3,7 @@ export async function signup(req, res) {
 }
 
 export async function login(req, res) {
-  res.send("Login endpoint");
+  res.send("Login endpoint created");
 }
 
 export async function logout(req, res){
