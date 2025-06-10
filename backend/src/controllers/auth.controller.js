@@ -23,15 +23,21 @@ export async function signup(req, res) {
 
     const idx = Math.floor(Math.random() * 100) + 1;
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+    const newUser = await User.create({
+      email,
+      fullName,
+      password,
+      profilePic: randomAvatar,
+
+    });
 
     try {
-      const newUser = await User.create({
-        email,
-        fullName,
-        password,
-        profilePic: randomAvatar,
-
+      await upsertStreamUser({
+        id: newUser._id.toString(),
+        name: newUser.fullName,
+        image: newUser.profilePic || "",
       });
+
       console.log(`Stream user created for ${newUser.fullName} with ID: ${newUser._id}`);
 
     } catch (error) {
@@ -39,11 +45,7 @@ export async function signup(req, res) {
 
     }
 
-    await upsertStreamUser({
-      id: newUser._id.toString(),
-      name: newUser.fullName,
-      image: newUser.profilePic || "",
-    });
+
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "7d"
