@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { axiosInstance } from "../lib/axios";
+
+import useSignUp from "../hooks/useSignUp";
 
 const SignUpPage = () => {
   const [signupData, setSignupData] = useState({
@@ -11,41 +11,58 @@ const SignUpPage = () => {
     password: "",
   });
 
-  const queryClient = useQueryClient();
+  // This is how we did it at first, without using our custom hook
+  // const queryClient = useQueryClient();
+  // const {
+  //   mutate: signupMutation,
+  //   isPending,
+  //   error,
+  // } = useMutation({
+  //   mutationFn: signup,
+  //   onSuccess: () => queryClient.invalidateQueries({ queryKey: ["authUser"] }),
+  // });
 
-  const {mutate, isPending, error} = useMutation({
-    mutationFn:async ()=> {
-      const response = await axiosInstance.post("/auth/signup",signupData);
-      return response.data;
-    },
-    onSuccess:() => queryClient.invalidateQueries({queryKey:["authUser"]}), 
-  })
+  // This is how we did it using our custom hook - optimized version
+  const { isPending, error, signupMutation } = useSignUp();
+
   const handleSignup = (e) => {
     e.preventDefault();
-    mutate()
+    signupMutation(signupData);
   };
+
   return (
     <div
       className="h-screen flex items-center justify-center p-4 sm:p-6 md:p-8"
       data-theme="forest"
     >
       <div className="border border-primary/25 flex flex-col lg:flex-row w-full max-w-5xl mx-auto bg-base-100 rounded-xl shadow-lg overflow-hidden">
+        {/* SIGNUP FORM - LEFT SIDE */}
         <div className="w-full lg:w-1/2 p-4 sm:p-8 flex flex-col">
+          {/* LOGO */}
           <div className="mb-4 flex items-center justify-start gap-2">
             <ShipWheelIcon className="size-9 text-primary" />
             <span className="text-3xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider">
-              ChatAPP
+              Streamify
             </span>
           </div>
+
+          {/* ERROR MESSAGE IF ANY */}
+          {error && (
+            <div className="alert alert-error mb-4">
+              <span>{error.response.data.message}</span>
+            </div>
+          )}
+
           <div className="w-full">
             <form onSubmit={handleSignup}>
               <div className="space-y-4">
                 <div>
                   <h2 className="text-xl font-semibold">Create an Account</h2>
                   <p className="text-sm opacity-70">
-                    Join ChatAPP and start your language learning adventure!
+                    Join Streamify and start your language learning adventure!
                   </p>
                 </div>
+
                 <div className="space-y-3">
                   {/* FULLNAME */}
                   <div className="form-control w-full">
@@ -92,6 +109,7 @@ const SignUpPage = () => {
                       Password must be at least 6 characters long
                     </p>
                   </div>
+
                   <div className="form-control">
                     <label className="label cursor-pointer justify-start gap-2">
                       <input type="checkbox" className="checkbox checkbox-sm" required />
@@ -103,6 +121,7 @@ const SignUpPage = () => {
                     </label>
                   </div>
                 </div>
+
                 <button className="btn btn-primary w-full" type="submit">
                   {isPending ? (
                     <>
@@ -113,6 +132,7 @@ const SignUpPage = () => {
                     "Create Account"
                   )}
                 </button>
+
                 <div className="text-center mt-4">
                   <p className="text-sm">
                     Already have an account?{" "}
@@ -121,15 +141,10 @@ const SignUpPage = () => {
                     </Link>
                   </p>
                 </div>
-
-
-
-
               </div>
             </form>
           </div>
         </div>
-
 
         {/* SIGNUP FORM - RIGHT SIDE */}
         <div className="hidden lg:flex w-full lg:w-1/2 bg-primary/10 items-center justify-center">
@@ -150,5 +165,6 @@ const SignUpPage = () => {
       </div>
     </div>
   );
-}
+};
+
 export default SignUpPage;
