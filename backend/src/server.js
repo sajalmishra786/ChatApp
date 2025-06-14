@@ -6,7 +6,6 @@ import path from "path";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import chatRoutes from "./routes/chat.route.js";
-import { connect } from "mongoose";
 import { connectDB } from "./lib/db.js";
 const app = express();
 const PORT = process.env.PORT
@@ -23,7 +22,7 @@ app.use("/api/users",userRoutes);
 app.use("/api/chat",chatRoutes);
 
 if(process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "frontend/dist")));
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
   app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
